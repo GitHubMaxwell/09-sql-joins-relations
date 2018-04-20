@@ -6,7 +6,9 @@ const express = require('express');
 const PORT = process.env.PORT || 3000;
 const app = express();
 
-const conString = '';
+const conString = 'postgres://localhost:5432/kilovolt';
+//installed mac conString
+
 const client = new pg.Client(conString);
 client.connect();
 client.on('error', error => {
@@ -19,12 +21,16 @@ app.use(express.static('./public'));
 
 // REVIEW: These are routes for requesting HTML resources.
 app.get('/new', (request, response) => {
-  response.sendFile('new.html', {root: './public'});
+  response.sendFile('new.html', { root: './public' });
 });
 
 // REVIEW: These are routes for making API calls to enact CRUD operations on our database.
 app.get('/articles', (request, response) => {
-  client.query(``)
+  //TODO add query here / SQL query to join all data from articles and authors tables on the author_id value of each when the articles are retrieved
+  client.query(`
+  SELECT * FROM articles
+  INNER JOIN authors
+  ON articles.authorId = authors.id`)
     .then(result => {
       response.send(result.rows);
     })
@@ -34,10 +40,19 @@ app.get('/articles', (request, response) => {
 });
 
 app.post('/articles', (request, response) => {
+  //TODO add query here /CREATE new article / Insert an author and pass the author and authorUrl as data for the query
   client.query(
-    '',
-    [],
-    function(err) {
+    `CREATE TABLE articles(
+      author ???
+    )
+      INSERT INTO articles(author, "authorUrl")
+      VALUES ($1, $2);
+      `,
+    [
+      request.body.author,
+      request.body.authorUrl,
+    ],
+    function (err) {
       if (err) console.error(err);
       // REVIEW: This is our second query, to be executed when this first query is complete.
       queryTwo();
@@ -45,10 +60,16 @@ app.post('/articles', (request, response) => {
   )
 
   function queryTwo() {
+    //TODO add query here / add the SQL commands to RETRIEVE a single author from the authors table. Add the author name as data for the query
     client.query(
-      ``,
-      [],
-      function(err, result) {
+      `SELECT DISTINCT author FROM authors
+      CREATE TABLE authors(author)
+      VALUES ($1);
+      `,
+      [
+        request.body.author,
+      ],
+      function (err, result) {
         if (err) console.error(err);
 
         // REVIEW: This is our third query, to be executed when the second is complete. We are also passing the author_id into our third query.
@@ -58,10 +79,21 @@ app.post('/articles', (request, response) => {
   }
 
   function queryThree(author_id) {
+    //TODO add query here / add the SQL commands to insert the new article using the author_id from the second query. Add the data from the new article, including the author_id, as data for the SQL query
     client.query(
-      ``,
-      [],
-      function(err) {
+      `INSERT INTO
+      articles(title, author, "authorUrl", category, "publishedOn", body)
+      VALUES ($1, $2, $3, $4, $5, $6);
+      `,
+      [
+        request.body.title,
+        request.body.author,
+        request.body.authorUrl,
+        request.body.category,
+        request.body.publishedOn,
+        request.body.body
+      ],
+      function (err) {
         if (err) console.error(err);
         response.send('insert complete');
       }
@@ -69,10 +101,21 @@ app.post('/articles', (request, response) => {
   }
 });
 
-app.put('/articles/:id', function(request, response) {
+app.put('/articles/:id', function (request, response) {
+  //TODO add query here / SQL query to update an author record and article record
   client.query(
-    ``,
-    []
+    `INSERT INTO
+    articles(title, author, "authorUrl", category, "publishedOn", body)
+    VALUES ($1, $2, $3, $4, $5, $6);
+    `,
+    [
+      request.body.title,
+      request.body.author,
+      request.body.authorUrl,
+      request.body.category,
+      request.body.publishedOn,
+      request.body.body
+    ]
   )
     .then(() => {
       client.query(
@@ -138,7 +181,7 @@ function loadAuthors() {
 function loadArticles() {
   client.query('SELECT COUNT(*) FROM articles')
     .then(result => {
-      if(!parseInt(result.rows[0].count)) {
+      if (!parseInt(result.rows[0].count)) {
         fs.readFile('./public/data/hackerIpsum.json', 'utf8', (err, fd) => {
           JSON.parse(fd).forEach(ele => {
             client.query(`

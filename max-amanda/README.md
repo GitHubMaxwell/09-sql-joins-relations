@@ -19,4 +19,4 @@ HTML, CSS, JavaScript, jQuery, Express,  node.js, PostgreSQL package 'pg', SQL, 
 04-20-2018 01:00pm - Completed README.md
 
 ## Credits and Collaborations
-Nicholas Carignan, classmates
+Nicholas Carignan, classmates (Steph, Tim, Andrew, Emery)

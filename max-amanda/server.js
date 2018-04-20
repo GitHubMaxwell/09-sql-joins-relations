@@ -6,7 +6,10 @@ const express = require('express');
 const PORT = process.env.PORT || 3000;
 const app = express();
 
-const conString = 'postgres://localhost:5432/kilovolt';
+// 5432 is where the database is located.
+// Installed Linux conString
+const conString = 'postgres://amanda:1975@localhost:5432/kilovolt';
+// const conString = 'postgres://localhost:5432/kilovolt';
 //installed mac conString
 
 const client = new pg.Client(conString);

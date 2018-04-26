@@ -3,13 +3,13 @@
 const pg = require('pg');
 const fs = require('fs');
 const express = require('express');
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 4000;
 const app = express();
 
 // 5432 is where the database is located.
 // Installed Linux conString
-const conString = 'postgres://amanda:1975@localhost:5432/kilovolt';
-// const conString = 'postgres://localhost:5432/kilovolt';
+// const conString = 'postgres://amanda:1975@localhost:5432/kilovolt';
+const conString = 'postgres://localhost:5432/kilovolt';
 //installed mac conString
 
 const client = new pg.Client(conString);
@@ -114,32 +114,31 @@ app.post('/articles', (request, response) => {
 app.put('/articles/:id', function (request, response) {
   //TODO add query here / SQL query to UPDATE an author record and article record
   //this is wrong
-  client.query(
-    `INSERT INTO
-    articles(title, author, "authorUrl", category, "publishedOn", body)
-    VALUES ($1, $2, $3, $4, $5, $6);
+  client.query(`
+    UPDATE authors
+    SET author=$1, "authorUrl"=$2
+    WHERE author_id=$3
     `,
-    [
-      request.body.title,
-      request.body.author,
-      request.body.authorUrl,
-      request.body.category,
-      request.body.publishedOn,
-      request.body.body
-    ]
+    [request.body.author, request.body.authorUrl, request.body.author_id]
   )
     .then(() => {
-      client.query(
-        ``,
-        []
+      client.query(`
+      UPDATE articles
+      SET author_id=$1, title=$2, category=$3, "publishedOn"=$4, body=$5
+      WHERE article_id=$6
+      `,
+        [
+          request.body.author_id,
+          request.body.title,
+          request.body.category,
+          request.body.publishedOn,
+          request.body.body,
+          request.params.id
+        ]
       )
     })
-    .then(() => {
-      response.send('Update complete');
-    })
-    .catch(err => {
-      console.error(err);
-    })
+    .then(() => response.send('Update complete'))
+    .catch(console.error);
 });
 
 app.delete('/articles/:id', (request, response) => {

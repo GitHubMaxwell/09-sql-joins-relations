@@ -26,7 +26,6 @@ app.use(express.static('./public'));
 app.get('/new', (request, response) => {
   response.sendFile('new.html', { root: './public' });
 });
-
 // REVIEW: These are routes for making API calls to enact CRUD operations on our database.
 app.get('/articles', (request, response) => {
   //TODO add query here / SQL query to join all data from articles and authors tables on the author_id value of each when the articles are retrieved /get all the articles
